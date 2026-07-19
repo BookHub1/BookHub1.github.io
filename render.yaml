@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: bookhub-backend
+    env: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: WEB_ORIGIN
+        sync: false   # set this in Render dashboard to your GitHub Pages URL
+      - key: GOOGLE_CLIENT_ID
+        sync: false   # set this in Render dashboard

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>List an Item — BookHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../layout.css" />
+  <link rel="stylesheet" href="../sidebar.css" />
+  <link rel="stylesheet" href="../listing.css" />
+</head>
+<body>
+
+<aside id="sidebar" aria-label="Main navigation">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon">📚</div>
+    <span class="sidebar-brand-name">BookHub</span>
+  </div>
+  <nav>
+    <div class="sidebar-section">Navigation</div>
+    <ul>
+      <li><a href="../index.html"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a></li>
+      <li><a href="../Marketplace/market.html"><span class="nav-icon">🛒</span><span class="nav-label">Marketplace</span></a></li>
+      <li><a href="./listing.html" class="active"><span class="nav-icon">📋</span><span class="nav-label">List Item</span></a></li>
+      <li><a href="../about-me/about-me.html"><span class="nav-icon">👤</span><span class="nav-label">About</span></a></li>
+    </ul>
+  </nav>
+  <div class="sidebar-bottom" id="sidebarBottom"></div>
+</aside>
+
+<button id="darkToggle" type="button" aria-label="Toggle theme" onclick="BH.Dark.toggle()">🌙</button>
+
+<main id="main-content">
+
+  <section style="margin-bottom:28px;">
+    <p class="label" style="margin-bottom:10px;">📋 Sell something</p>
+    <h1><span class="gradient-text">List an Item</span></h1>
+    <p class="subtitle mt8">Add a book or item with photos, a price, and a description. Reach buyers instantly.</p>
+  </section>
+
+  <!-- ── Payout Method Banner ── -->
+  <div id="payoutBanner" style="
+    display:flex;align-items:center;gap:14px;
+    padding:14px 18px;border-radius:14px;margin-bottom:24px;
+    background:rgba(255,183,0,0.08);border:1.5px solid rgba(255,183,0,0.3);">
+    <span style="font-size:22px;">💰</span>
+    <div style="flex:1;">
+      <div style="font-weight:800;font-size:14px;color:#b45309;">Set up your payout method</div>
+      <div style="font-size:13px;color:#92400e;margin-top:2px;">Add a bank account or debit card to receive payments when your items sell.</div>
+    </div>
+    <button class="btn btn-sm" id="payoutSetupBtn" type="button"
+      style="background:#f59e0b;color:#fff;border:none;white-space:nowrap;flex-shrink:0;">
+      Set up →
+    </button>
+  </div>
+  <div id="payoutConnected" style="
+    display:none;align-items:center;gap:14px;
+    padding:14px 18px;border-radius:14px;margin-bottom:24px;
+    background:rgba(48,178,89,0.07);border:1.5px solid rgba(48,178,89,0.25);">
+    <span style="font-size:22px;">✅</span>
+    <div style="flex:1;">
+      <div style="font-weight:800;font-size:14px;color:#166534;" id="payoutConnectedLabel">Payout method connected</div>
+      <div style="font-size:13px;color:#15803d;margin-top:2px;" id="payoutConnectedSub">You'll receive payments to your account.</div>
+    </div>
+    <button class="btn btn-sm btn-ghost" id="payoutEditBtn" type="button">Edit</button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.3fr 0.7fr;gap:24px;align-items:start;">
+
+    <!-- Form -->
+    <div class="card listing-form">
+      <h2 style="margin-bottom:4px;">Item Details</h2>
+      <p class="text2" style="font-size:13px;margin-bottom:8px;">Fill in the details below. All fields marked * are required.</p>
+
+      <div class="grid2">
+        <div class="field">
+          <span>Item name *</span>
+          <input id="f-name" type="text" placeholder="e.g. Used Sci-Fi Novel" />
+        </div>
+        <div class="field">
+          <span>Price (USD) *</span>
+          <input id="f-price" type="number" min="0" step="0.01" placeholder="e.g. 12.99" />
+        </div>
+      </div>
+
+      <div class="field">
+        <span>Description *</span>
+        <textarea id="f-desc" rows="4" placeholder="Describe condition, edition, what's included…"></textarea>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <span>Category *</span>
+          <select id="f-cat">
+            <option value="book">📖 Book</option>
+            <option value="lamp">💡 Lamp</option>
+            <option value="electronics">🔌 Electronics</option>
+            <option value="home">🏠 Home item</option>
+            <option value="other">📦 Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <span>Condition</span>
+          <select id="f-cond">
+            <option>New</option>
+            <option selected>Like New</option>
+            <option>Good</option>
+            <option>Acceptable</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <span>Photo URL (optional)</span>
+        <input id="f-img" type="url" placeholder="https://…" />
+      </div>
+
+      <div class="photo-drop" id="photoDrop" role="button" tabindex="0">
+        <div class="photo-drop-icon">📸</div>
+        <div style="font-weight:700;font-size:14px;">Drag &amp; drop a photo here</div>
+        <div style="font-size:12px;margin-top:4px;">or paste a URL above — PNG, JPG, WebP</div>
+      </div>
+
+      <div id="imgPreviewWrap" style="display:none;margin-top:4px;">
+        <img id="imgPreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;border:1px solid var(--border);" alt="Preview" />
+      </div>
+
+      <div class="row mt8">
+        <button class="btn btn-primary" id="publishBtn" type="button">🚀 Publish Listing</button>
+        <button class="btn btn-ghost" id="draftBtn" type="button">💾 Save Draft</button>
+        <button class="btn btn-ghost" id="clearBtn" type="button">🗑 Clear</button>
+      </div>
+
+      <div id="formMsg" style="display:none;margin-top:10px;"></div>
+    </div>
+
+    <!-- Preview + My Listings -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <div class="card">
+        <h3 style="margin-bottom:14px;">Live Preview</h3>
+        <div id="previewCard" class="card item-card" style="margin:0;">
+          <div class="media">
+            <img id="pvImg" src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&q=80" alt="Preview" style="height:160px;" />
+            <span class="media-badge" id="pvBadge">📖 Book</span>
+          </div>
+          <div class="item-body">
+            <div class="item-title" id="pvTitle">Your item name</div>
+            <div class="item-desc" id="pvDesc">Description will appear here…</div>
+            <div class="item-bottom">
+              <span class="price" id="pvPrice">$0.00</span>
+              <span class="badge badge-blue" id="pvCond">Like New</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:14px;">My Listings</h3>
+        <div id="myListings">
+          <p class="muted small-note">No listings yet. Publish one above.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- Payout Modal -->
+<div id="payoutModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="payoutTitle">
+  <div class="modal-backdrop" id="payoutBackdrop"></div>
+  <div class="modal-panel" style="max-width:540px;">
+    <div class="modal-header">
+      <h3 id="payoutTitle">💳 Add Payout Method</h3>
+      <button class="icon-btn" id="payoutCloseBtn" type="button" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" style="gap:18px;">
+
+      <p style="font-size:13px;color:var(--text2);margin-top:-6px;">
+        Choose how you want to receive money when your items sell. BookHub deposits payouts within 2 business days.
+      </p>
+
+      <!-- Method tabs -->
+      <div style="display:flex;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;">
+        <button class="payout-tab active" id="ptBank" type="button" onclick="switchPayoutTab('bank')"
+          style="flex:1;padding:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;background:var(--brand);color:#fff;font-family:inherit;">
+          🏦 Bank Transfer
+        </button>
+        <button class="payout-tab" id="ptCard" type="button" onclick="switchPayoutTab('card')"
+          style="flex:1;padding:10px;border:none;border-left:1.5px solid var(--border);font-size:13px;font-weight:700;cursor:pointer;background:var(--panel);color:var(--text2);font-family:inherit;transition:all 0.14s;">
+          💳 Debit Card
+        </button>
+      </div>
+
+      <!-- BANK panel -->
+      <div id="ptBankPanel" style="display:flex;flex-direction:column;gap:14px;">
+        <div class="field">
+          <span>Account holder name *</span>
+          <input id="pb-name" type="text" placeholder="Full legal name" autocomplete="name" />
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <span>Routing number *</span>
+            <input id="pb-routing" type="text" inputmode="numeric" maxlength="9" placeholder="9 digits" />
+          </div>
+          <div class="field">
+            <span>Account number *</span>
+            <input id="pb-account" type="text" inputmode="numeric" maxlength="17" placeholder="Up to 17 digits" />
+          </div>
+        </div>
+        <div class="field">
+          <span>Account type</span>
+          <select id="pb-type">
+            <option value="checking">Checking</option>
+            <option value="savings">Savings</option>
+            <option value="business">Business checking</option>
+          </select>
+        </div>
+        <div class="field">
+          <span>Bank name (optional)</span>
+          <input id="pb-bank" type="text" placeholder="e.g. Chase, Wells Fargo…" />
+        </div>
+      </div>
+
+      <!-- DEBIT CARD panel -->
+      <div id="ptCardPanel" style="display:none;flex-direction:column;gap:14px;">
+        <div class="field">
+          <span>Cardholder name *</span>
+          <input id="pc-name" type="text" placeholder="Name on card" autocomplete="cc-name" />
+        </div>
+
+        <!-- Stripe-style unified card block -->
+        <div style="border:1.5px solid var(--border);border-radius:8px;overflow:hidden;" id="payoutCardBlock">
+          <div style="display:flex;align-items:center;position:relative;border-bottom:1.5px solid var(--border);">
+            <input id="pc-num" type="text" inputmode="numeric" maxlength="19"
+              placeholder="Card number" autocomplete="cc-number"
+              style="flex:1;height:44px;padding:0 120px 0 14px;border:none;outline:none;font-size:14px;background:var(--panel);color:var(--text);font-family:inherit;"
+            />
+            <div id="pcNetIcons" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;gap:3px;pointer-events:none;">
+              <div id="pni-visa" style="width:30px;height:20px;border-radius:3px;background:#1a1f71;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;opacity:0.25;transition:opacity 0.2s;border:1px solid #1a1f71;">VISA</div>
+              <div id="pni-mc"   style="width:30px;height:20px;border-radius:3px;background:linear-gradient(90deg,#eb001b,#f79e1b);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;opacity:0.25;transition:opacity 0.2s;">MC</div>
+              <div id="pni-amex" style="width:30px;height:20px;border-radius:3px;background:#007bc1;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;opacity:0.25;transition:opacity 0.2s;">AMEX</div>
+            </div>
+          </div>
+          <div style="display:flex;">
+            <input id="pc-exp" type="text" inputmode="numeric" maxlength="7" placeholder="MM / YY"
+              autocomplete="cc-exp"
+              style="flex:1;height:44px;padding:0 14px;border:none;border-right:1.5px solid var(--border);outline:none;font-size:14px;background:var(--panel);color:var(--text);font-family:inherit;" />
+            <input id="pc-cvc" type="text" inputmode="numeric" maxlength="4" placeholder="CVC"
+              autocomplete="cc-csc"
+              style="flex:1;height:44px;padding:0 14px;border:none;outline:none;font-size:14px;background:var(--panel);color:var(--text);font-family:inherit;" />
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;background:rgba(48,178,89,0.06);border:1px solid rgba(48,178,89,0.2);font-size:12px;color:#166534;">
+          <span>🔒</span>
+          <span>Debit cards only. Credit cards cannot receive payouts. Your card details are tokenized and never stored as-is.</span>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div id="payoutErr" style="display:none;padding:10px 14px;border-radius:8px;background:#fff8f5;border:1px solid #fcd2c4;font-size:13px;color:#c0392b;font-weight:600;"></div>
+
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <button class="btn btn-ghost" type="button" id="payoutCancelBtn">Cancel</button>
+      <button class="btn btn-primary" type="button" id="payoutSaveBtn">Save payout method</button>
+    </div>
+  </div>
+</div>
+
+<!-- Auth Modal -->
+<div id="authModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="modal-backdrop" id="authBackdrop"></div>
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h3 id="authTitle">Sign in to BookHub</h3>
+      <button class="icon-btn" id="authCloseBtn" type="button" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="text2" style="font-size:14px;">Sign in to publish listings and manage your items.</p>
+      <div id="googleSignInBtn"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="../auth.js"></script>
+<script src="../sidebar.js"></script>
+<script>
+function openAuthModal()  { const m=document.getElementById("authModal"); m.classList.remove("hidden"); m.setAttribute("aria-hidden","false"); }
+function closeAuthModal() { const m=document.getElementById("authModal"); m.classList.add("hidden"); m.setAttribute("aria-hidden","true"); }
+document.getElementById("authBackdrop").addEventListener("click", closeAuthModal);
+document.getElementById("authCloseBtn").addEventListener("click", closeAuthModal);
+
+BH.Sidebar.init();
+
+// ── Payout method ──────────────────────────────────────
+const PAYOUT_KEY = "bh_payout_v1";
+
+function getPayoutMethod() {
+  try { return JSON.parse(localStorage.getItem(PAYOUT_KEY) || "null"); } catch { return null; }
+}
+function savePayoutMethod(pm) { localStorage.setItem(PAYOUT_KEY, JSON.stringify(pm)); }
+
+function renderPayoutBanner() {
+  const pm = getPayoutMethod();
+  const banner   = document.getElementById("payoutBanner");
+  const connected = document.getElementById("payoutConnected");
+  if (pm) {
+    banner.style.display = "none";
+    connected.style.display = "flex";
+    if (pm.type === "bank") {
+      document.getElementById("payoutConnectedLabel").textContent = "🏦 Bank account connected";
+      document.getElementById("payoutConnectedSub").textContent =
+        `${pm.bankName || "Bank"} · ${pm.accountType} ····${pm.last4}`;
+    } else {
+      document.getElementById("payoutConnectedLabel").textContent = "💳 Debit card connected";
+      document.getElementById("payoutConnectedSub").textContent =
+        `${pm.network ? pm.network.toUpperCase() : "Card"} ····${pm.last4}  ·  ${pm.name}`;
+    }
+  } else {
+    banner.style.display = "flex";
+    connected.style.display = "none";
+  }
+}
+
+// Open modal
+function openPayoutModal() {
+  const existing = getPayoutMethod();
+  if (existing) {
+    // Pre-fill if editing
+    if (existing.type === "bank") {
+      switchPayoutTab("bank");
+      document.getElementById("pb-name").value    = existing.name || "";
+      document.getElementById("pb-bank").value    = existing.bankName || "";
+      document.getElementById("pb-type").value    = existing.accountType || "checking";
+    } else {
+      switchPayoutTab("card");
+      document.getElementById("pc-name").value = existing.name || "";
+    }
+  }
+  document.getElementById("payoutErr").style.display = "none";
+  document.getElementById("payoutModal").classList.remove("hidden");
+  document.getElementById("payoutModal").setAttribute("aria-hidden", "false");
+}
+function closePayoutModal() {
+  document.getElementById("payoutModal").classList.add("hidden");
+  document.getElementById("payoutModal").setAttribute("aria-hidden", "true");
+}
+
+document.getElementById("payoutSetupBtn").addEventListener("click", openPayoutModal);
+document.getElementById("payoutEditBtn").addEventListener("click",  openPayoutModal);
+document.getElementById("payoutCloseBtn").addEventListener("click", closePayoutModal);
+document.getElementById("payoutCancelBtn").addEventListener("click", closePayoutModal);
+document.getElementById("payoutBackdrop").addEventListener("click", closePayoutModal);
+
+// Tab switch
+let currentPayoutTab = "bank";
+window.switchPayoutTab = function(tab) {
+  currentPayoutTab = tab;
+  document.getElementById("ptBankPanel").style.display = tab === "bank" ? "flex" : "none";
+  document.getElementById("ptCardPanel").style.display = tab === "card" ? "flex" : "none";
+  const bankBtn = document.getElementById("ptBank");
+  const cardBtn = document.getElementById("ptCard");
+  bankBtn.style.background = tab === "bank" ? "var(--brand)" : "var(--panel)";
+  bankBtn.style.color      = tab === "bank" ? "#fff" : "var(--text2)";
+  cardBtn.style.background = tab === "card" ? "var(--brand)" : "var(--panel)";
+  cardBtn.style.color      = tab === "card" ? "#fff" : "var(--text2)";
+};
+
+// Network detection for payout card
+function detectPayoutNetwork(raw) {
+  const n = raw.replace(/\D/g,"");
+  if (/^4/.test(n))               return "visa";
+  if (/^5[1-5]|^2[2-7]/.test(n)) return "mastercard";
+  if (/^3[47]/.test(n))           return "amex";
+  return "";
+}
+function updatePayoutNetIcons(net) {
+  [["pni-visa","visa"],["pni-mc","mastercard"],["pni-amex","amex"]].forEach(([id,n]) => {
+    const el = document.getElementById(id);
+    if (el) el.style.opacity = (!net || net === n) ? "1" : "0.2";
+  });
+}
+
+// Format payout card number
+const pcNum = document.getElementById("pc-num");
+const pcExp = document.getElementById("pc-exp");
+if (pcNum) {
+  pcNum.addEventListener("input", function() {
+    let v = this.value.replace(/\D/g,"").slice(0,16);
+    this.value = v.replace(/(.{4})/g,"$1 ").trim();
+    updatePayoutNetIcons(detectPayoutNetwork(this.value));
+  });
+}
+if (pcExp) {
+  pcExp.addEventListener("input", function() {
+    let v = this.value.replace(/\D/g,"").slice(0,4);
+    if (v.length > 2) v = v.slice(0,2) + " / " + v.slice(2);
+    this.value = v;
+  });
+}
+
+// Luhn check
+function luhn(num) {
+  const n = num.replace(/\D/g,""); let sum=0, alt=false;
+  for (let i=n.length-1;i>=0;i--) { let d=parseInt(n[i],10); if(alt){d*=2;if(d>9)d-=9;} sum+=d; alt=!alt; }
+  return n.length>=13 && sum%10===0;
+}
+function validRouting(r) { return /^\d{9}$/.test(r); }
+function validAccount(a) { return /^\d{4,17}$/.test(a); }
+
+// Save payout method
+document.getElementById("payoutSaveBtn").addEventListener("click", () => {
+  const errEl = document.getElementById("payoutErr");
+  errEl.style.display = "none";
+
+  function showErr(msg) { errEl.textContent = msg; errEl.style.display = "block"; }
+
+  if (currentPayoutTab === "bank") {
+    const name    = document.getElementById("pb-name").value.trim();
+    const routing = document.getElementById("pb-routing").value.replace(/\D/g,"");
+    const account = document.getElementById("pb-account").value.replace(/\D/g,"");
+    const acctType = document.getElementById("pb-type").value;
+    const bankName = document.getElementById("pb-bank").value.trim();
+
+    if (!name)               return showErr("Please enter the account holder name.");
+    if (!validRouting(routing)) return showErr("Routing number must be exactly 9 digits.");
+    if (!validAccount(account)) return showErr("Account number must be 4–17 digits.");
+
+    savePayoutMethod({
+      type: "bank",
+      name,
+      accountType: acctType,
+      bankName,
+      last4: account.slice(-4),
+      // Store only last 4 of account — never full account number
+      addedAt: new Date().toISOString(),
+    });
+
+  } else {
+    const name   = document.getElementById("pc-name").value.trim();
+    const num    = document.getElementById("pc-num").value;
+    const expiry = document.getElementById("pc-exp").value;
+    const cvc    = document.getElementById("pc-cvc").value.replace(/\D/g,"");
+
+    if (!name)         return showErr("Please enter the cardholder name.");
+    if (!luhn(num))    return showErr("Card number is invalid. Please check and try again.");
+    const expDigits = expiry.replace(/\D/g,"");
+    if (expDigits.length !== 4) return showErr("Please enter a valid expiry date (MM / YY).");
+    const em = parseInt(expDigits.slice(0,2),10), ey = 2000+parseInt(expDigits.slice(2),10);
+    const now2 = new Date();
+    if (em<1||em>12||new Date(ey,em,0)<now2) return showErr("This card has expired.");
+    if (cvc.length < 3) return showErr("Please enter the CVC code.");
+
+    const network = detectPayoutNetwork(num);
+    const last4   = num.replace(/\D/g,"").slice(-4);
+
+    savePayoutMethod({
+      type: "card",
+      name,
+      network,
+      last4,
+      expiry: expiry.trim(),
+      addedAt: new Date().toISOString(),
+    });
+  }
+
+  closePayoutModal();
+  renderPayoutBanner();
+  BH.Toast.show("Payout method saved! 💰", "success");
+});
+
+renderPayoutBanner();
+
+
+// Live preview
+function updatePreview() {
+  const name  = document.getElementById("f-name").value  || "Your item name";
+  const price = parseFloat(document.getElementById("f-price").value) || 0;
+  const desc  = document.getElementById("f-desc").value  || "Description will appear here…";
+  const cat   = document.getElementById("f-cat").value;
+  const cond  = document.getElementById("f-cond").value;
+  const img   = document.getElementById("f-img").value;
+  const badges = { book:"📖 Book", lamp:"💡 Lamp", electronics:"🔌 Electronics", home:"🏠 Home", other:"📦 Other" };
+  document.getElementById("pvTitle").textContent  = name;
+  document.getElementById("pvDesc").textContent   = desc;
+  document.getElementById("pvPrice").textContent  = "$" + price.toFixed(2);
+  document.getElementById("pvBadge").textContent  = badges[cat] || "📦 Item";
+  document.getElementById("pvCond").textContent   = cond;
+  if (img) document.getElementById("pvImg").src   = img;
+}
+["f-name","f-price","f-desc","f-cat","f-cond","f-img"].forEach(id => {
+  document.getElementById(id).addEventListener("input", updatePreview);
+});
+document.getElementById("f-img").addEventListener("change", () => {
+  const url = document.getElementById("f-img").value;
+  if (url) { document.getElementById("pvImg").src = url; const w=document.getElementById("imgPreviewWrap"); w.style.display="block"; document.getElementById("imgPreview").src=url; }
+});
+
+// Listings storage
+const LS_KEY = "bh_listings_v1";
+function getListings() { try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]");}catch{return[];} }
+function saveListings(l) { localStorage.setItem(LS_KEY,JSON.stringify(l)); }
+
+function renderMyListings() {
+  const list = getListings();
+  const el = document.getElementById("myListings");
+  if (!list.length) { el.innerHTML='<p class="muted small-note">No listings yet. Publish one above.</p>'; return; }
+  el.innerHTML = `<table class="listings-table"><thead><tr><th></th><th>Name</th><th>Price</th><th>Cat.</th><th></th></tr></thead><tbody>` +
+    list.map((l,i)=>`<tr>
+      ${l.img?`<td><img class="listing-thumb" src="${l.img}" alt="" /></td>`:`<td><div class="listing-thumb" style="background:var(--border);border-radius:8px;"></div></td>`}
+      <td style="font-weight:700">${l.name}</td>
+      <td style="color:var(--brand);font-weight:800">$${Number(l.price).toFixed(2)}</td>
+      <td><span class="badge badge-blue">${l.cat}</span></td>
+      <td><button class="tiny-btn danger" onclick="deleteListing(${i})">✕</button></td>
+    </tr>`).join("") +
+    `</tbody></table>`;
+}
+
+window.deleteListing = (i) => {
+  const list = getListings(); list.splice(i,1); saveListings(list); renderMyListings();
+  BH.Toast.show("Listing removed.");
+};
+
+function showMsg(text, ok=true) {
+  const el=document.getElementById("formMsg");
+  el.style.display="block";
+  el.innerHTML=`<div class="badge ${ok?"badge-green":"badge-red"}" style="font-size:13px;padding:10px 14px;border-radius:10px;">${text}</div>`;
+  setTimeout(()=>el.style.display="none", 3500);
+}
+
+document.getElementById("publishBtn").addEventListener("click", () => {
+  if (!BH.Auth.getAccount()) { openAuthModal(); return; }
+  if (!getPayoutMethod()) {
+    openPayoutModal();
+    BH.Toast.show("⚠️ Add a payout method first so you can get paid.", "error");
+    return;
+  }
+  const name  = document.getElementById("f-name").value.trim();
+  const price = document.getElementById("f-price").value;
+  const desc  = document.getElementById("f-desc").value.trim();
+  if (!name || !price || !desc) { showMsg("⚠️ Please fill in name, price, and description.", false); return; }
+  const listing = {
+    name, price: parseFloat(price), desc,
+    cat:  document.getElementById("f-cat").value,
+    cond: document.getElementById("f-cond").value,
+    img:  document.getElementById("f-img").value.trim(),
+    at:   new Date().toLocaleDateString(),
+  };
+  const list = getListings(); list.unshift(listing); saveListings(list);
+  showMsg("🎉 Listing published!");
+  renderMyListings();
+  ["f-name","f-price","f-desc","f-img"].forEach(id=>document.getElementById(id).value="");
+  updatePreview();
+});
+
+document.getElementById("draftBtn").addEventListener("click", () => {
+  BH.Toast.show("Draft saved locally 💾");
+});
+document.getElementById("clearBtn").addEventListener("click", () => {
+  ["f-name","f-price","f-desc","f-img"].forEach(id=>document.getElementById(id).value="");
+  updatePreview();
+});
+
+renderMyListings();
+updatePreview();
+</script>
+</body>
+</html>
