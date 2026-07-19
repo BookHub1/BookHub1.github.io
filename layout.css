@@ -1,0 +1,17 @@
+/* layout.css — main content offset + hero grid */
+:root { --sidebar-w: 270px; }
+
+#main-content {
+  margin-left: var(--sidebar-w);
+  padding: 32px 36px;
+  min-height: 100vh;
+  max-width: 1240px;
+  position: relative; z-index: 1;
+}
+
+@media (max-width: 860px) {
+  #main-content { margin-left: 0; padding: 20px; padding-top: 80px; }
+}
+@media (max-width: 520px) {
+  #main-content { padding: 16px; padding-top: 70px; }
+}

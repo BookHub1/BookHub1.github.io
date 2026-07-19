@@ -1,0 +1,42 @@
+/* listing.css — listing page specific styles */
+.listing-form { display: flex; flex-direction: column; gap: 18px; }
+
+.photo-drop {
+  border: 2px dashed var(--border2);
+  border-radius: var(--radius);
+  padding: 36px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+  color: var(--muted);
+}
+.photo-drop:hover {
+  border-color: var(--brand);
+  background: rgba(79,124,255,0.06);
+  color: var(--brand);
+}
+.photo-drop-icon { font-size: 36px; margin-bottom: 8px; }
+
+.listings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.listings-table th {
+  text-align: left; padding: 10px 14px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); border-bottom: 1px solid var(--border);
+}
+.listings-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.listings-table tr:last-child td { border-bottom: none; }
+.listings-table tr:hover td { background: rgba(79,124,255,0.04); }
+
+.listing-thumb {
+  width: 44px; height: 44px;
+  border-radius: 8px; object-fit: cover;
+}

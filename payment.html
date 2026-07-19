@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — BookHub Pay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./payment.css" />
+</head>
+<body>
+<div class="pay-page">
+
+<!-- Top bar -->
+<header class="pay-topbar">
+  <a href="./index.html" class="pay-topbar-brand">
+    <div class="pay-topbar-icon">📚</div>
+    BookHub
+  </a>
+  <div class="pay-topbar-secure">
+    <span class="lock">🔒</span> Secure checkout
+  </div>
+</header>
+
+<!-- Main body: summary left, form right -->
+<div class="pay-body" id="payBody">
+
+  <!-- LEFT: order summary -->
+  <div class="pay-left">
+    <div class="pay-merchant-row">
+      <div class="pay-merchant-avatar">📚</div>
+      <div>
+        <div class="pay-merchant-name">BookHub Store</div>
+        <div class="pay-merchant-total" id="summaryTotal">$0.00</div>
+      </div>
+    </div>
+    <div class="pay-line-items" id="lineItems"></div>
+    <div class="pay-totals" id="summaryTotals" style="display:none;">
+      <div class="pay-total-row"><span>Subtotal</span><span id="sumSub">$0.00</span></div>
+      <div class="pay-total-row"><span>Shipping</span><span style="color:#30b259;font-weight:700;">Free</span></div>
+      <div class="pay-total-row"><span>Tax (8%)</span><span id="sumTax">$0.00</span></div>
+      <div class="pay-total-row grand"><span>Total due today</span><span id="sumGrand">$0.00</span></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: payment form -->
+  <div class="pay-right">
+
+    <!-- Contact -->
+    <div class="pay-contact">
+      <div class="pay-section-label">Contact</div>
+      <div class="pay-field">
+        <label class="pay-field-label" for="p-email">Email</label>
+        <input class="pay-input" id="p-email" type="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+    </div>
+
+    <!-- Method toggle: new card / saved cards -->
+    <div class="pay-method-toggle">
+      <button class="pay-method-btn active" id="btnNew"   type="button" onclick="showMethod('new')">💳 New card</button>
+      <button class="pay-method-btn"        id="btnSaved" type="button" onclick="showMethod('saved')">🗂 Saved <span id="savedBadge"></span></button>
+    </div>
+
+    <!-- NEW CARD panel -->
+    <div id="panelNew">
+      <div class="pay-section-label">Card information</div>
+
+      <!-- Unified card block -->
+      <div class="pay-card-block" id="cardBlock">
+        <!-- Number row -->
+        <div class="pay-card-row">
+          <div class="pay-card-field">
+            <input class="pay-card-input" id="cn-num" type="text" inputmode="numeric"
+                   placeholder="Card number" maxlength="19" autocomplete="cc-number" />
+            <div class="pay-network-icons" id="netIcons">
+              <div class="pay-network-icon visa"       id="ni-visa">VISA</div>
+              <div class="pay-network-icon mastercard" id="ni-mc">MC</div>
+              <div class="pay-network-icon amex"       id="ni-amex">AMEX</div>
+              <div class="pay-network-icon discover"   id="ni-disc">DISC</div>
+            </div>
+          </div>
+        </div>
+        <!-- Expiry / CVC row -->
+        <div class="pay-card-row">
+          <div class="pay-card-field">
+            <input class="pay-card-input half" id="cn-exp" type="text" inputmode="numeric"
+                   placeholder="MM / YY" maxlength="7" autocomplete="cc-exp" />
+          </div>
+          <div class="pay-card-field" style="position:relative;">
+            <input class="pay-card-input half" id="cn-cvc" type="password" inputmode="numeric"
+                   placeholder="CVC" maxlength="4" autocomplete="cc-csc" />
+            <button class="pay-cvc-toggle" id="cvcToggle" type="button" title="Show/hide CVC">👁</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pay-field" style="margin-bottom:20px;">
+        <label class="pay-field-label" for="cn-name">Name on card</label>
+        <input class="pay-input" id="cn-name" type="text" placeholder="Full name as on card" autocomplete="cc-name" />
+      </div>
+
+      <div class="pay-row-2" style="margin-bottom:20px;">
+        <div class="pay-field" style="margin-bottom:0;">
+          <label class="pay-field-label" for="cn-country">Country</label>
+          <select class="pay-input" id="cn-country" autocomplete="country" style="cursor:pointer;height:44px;">
+            <option value="US">🇺🇸 United States</option>
+            <option value="GB">🇬🇧 United Kingdom</option>
+            <option value="CA">🇨🇦 Canada</option>
+            <option value="AU">🇦🇺 Australia</option>
+            <option value="DE">🇩🇪 Germany</option>
+            <option value="FR">🇫🇷 France</option>
+            <option value="PL">🇵🇱 Poland</option>
+            <option value="OTHER">🌍 Other</option>
+          </select>
+        </div>
+        <div class="pay-field" style="margin-bottom:0;">
+          <label class="pay-field-label" for="cn-zip">ZIP / Postal</label>
+          <input class="pay-input" id="cn-zip" type="text" placeholder="10001" autocomplete="postal-code" />
+        </div>
+      </div>
+
+      <label class="pay-save-row">
+        <input type="checkbox" id="cn-save" checked />
+        Save card for future payments
+      </label>
+
+      <div class="pay-error-box" id="errNew"></div>
+      <div class="pay-retry-btn" id="retryNew" onclick="retryNew()">↩ Try again with a different card</div>
+
+      <button class="pay-submit-btn" id="btnPay" type="button" disabled>
+        <div class="pay-spinner"></div>
+        <span class="pay-btn-text" id="payLabel">Pay $0.00</span>
+      </button>
+    </div><!-- /panelNew -->
+
+    <!-- SAVED CARDS panel -->
+    <div id="panelSaved" style="display:none;">
+      <div class="pay-section-label">Saved payment methods</div>
+      <div class="pay-saved-list" id="savedList"></div>
+      <button class="pay-add-card" type="button" onclick="showMethod('new')">
+        <span style="font-size:17px;line-height:1;">＋</span> Use a new card
+      </button>
+      <div class="pay-error-box" id="errSaved" style="margin-top:14px;"></div>
+      <div class="pay-retry-btn" id="retrySaved" onclick="retrySaved()" style="margin-top:10px;">↩ Try again</div>
+      <button class="pay-submit-btn" id="btnPaySaved" type="button" disabled style="margin-top:14px;">
+        <div class="pay-spinner"></div>
+        <span class="pay-btn-text" id="payLabelSaved">Pay $0.00</span>
+      </button>
+    </div><!-- /panelSaved -->
+
+    <p class="pay-terms">
+      By confirming your payment, you allow BookHub to charge your card for this amount
+      in accordance with our <a href="#">terms</a>. No recurring charges.
+    </p>
+    <div class="pay-powered">Powered by <strong>BookHub Pay</strong> · 256-bit TLS</div>
+  </div><!-- /pay-right -->
+</div><!-- /pay-body -->
+
+<!-- SUCCESS screen -->
+<div class="pay-success" id="screenSuccess">
+  <div class="pay-success-checkmark"><span class="pay-success-check">✓</span></div>
+  <h2>Payment confirmed</h2>
+  <p>Your order is being prepared. A receipt has been saved to your account.</p>
+  <div class="pay-receipt" id="receiptCard"></div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <a href="./index.html" class="btn btn-primary btn-lg">Continue shopping</a>
+    <a href="./Marketplace/market.html" class="btn btn-ghost btn-lg">Back to Market</a>
+  </div>
+</div>
+
+<!-- FAILED screen (hard decline, non-retryable) -->
+<div class="pay-failed" id="screenFailed">
+  <div class="pay-failed-icon">✕</div>
+  <h2>Payment failed</h2>
+  <p id="failedMsg">Your card was declined. Please try a different payment method.</p>
+  <div class="pay-failed-code" id="failedCode"></div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
+    <button class="btn btn-primary" onclick="restartCheckout()">Try another card</button>
+    <a href="./index.html" class="btn btn-ghost">Back to shop</a>
+  </div>
+</div>
+
+<script src="./auth.js"></script>
+<script src="./payment-engine.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+//  BookHub Pay — checkout controller
+// ═══════════════════════════════════════════════
+const CART_KEY = "bh_cart_v2";
+const CATALOG  = [
+  { id:"b1", title:"The Quiet Galaxy",             price:9.99,  img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=80&q=80" },
+  { id:"b2", title:"History of Everything Vol. 1", price:14.50, img:"https://m.media-amazon.com/images/I/91Qt2CcT3UL._AC_UF1000,1000_QL80_.jpg" },
+  { id:"b3", title:"Design for Busy People",       price:11.25, img:"https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=80&q=80" },
+  { id:"b4", title:"Adventure Atlas",              price:12.25, img:"https://images.unsplash.com/photo-1519681393784-d120267933ba?w=80&q=80" },
+  { id:"b5", title:"Paperback Classics Pack",      price:18.75, img:"https://images.unsplash.com/photo-1512820790803-83ca734da794?w=80&q=80" },
+  { id:"b6", title:"The Midnight Library",         price:13.99, img:"https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=80&q=80" },
+  { id:"i1", title:"Desk Lamp (Warm Glow)",        price:24.50, img:"https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=80&q=80" },
+  { id:"i2", title:"Mini Bluetooth Speaker",       price:19.00, img:"https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=80&q=80" },
+  { id:"i3", title:"Ceramic Mug Set",              price:13.49, img:"https://images.unsplash.com/photo-1517705008128-361805f42e86?w=80&q=80" },
+  { id:"i4", title:"Bamboo Bookstand",             price:16.00, img:"https://images.unsplash.com/photo-1588776814546-ec7e0f7a7c7b?w=80&q=80" },
+];
+const CMAP = new Map(CATALOG.map(x => [x.id, x]));
+function getCart() { try { return JSON.parse(localStorage.getItem(CART_KEY)||"[]"); } catch { return []; } }
+function money(n)  { return "$" + Number(n).toFixed(2); }
+
+// State
+let grandTotal     = 0;
+let selectedPmId   = null;
+let currentMethod  = "new";
+let attemptCount   = 0;
+
+// ── Build order summary ────────────────────────────────
+function buildSummary() {
+  const cart = getCart();
+  const lineEl = document.getElementById("lineItems");
+  const totEl  = document.getElementById("summaryTotals");
+
+  if (!cart.length) {
+    lineEl.innerHTML = `<div style="padding:16px 0;font-size:14px;color:#8898aa;">
+      Your cart is empty. <a href="./index.html" style="color:#635bff;">Go back →</a></div>`;
+    document.getElementById("summaryTotal").textContent = "$0.00";
+    return;
+  }
+
+  let sub = 0;
+  lineEl.innerHTML = cart.map(ci => {
+    const it = CMAP.get(ci.id); if (!it) return "";
+    sub += it.price * ci.qty;
+    return `<div class="pay-line-item">
+      <div class="pay-line-img-wrap">
+        <img class="pay-line-img" src="${it.img}" alt="${it.title}" />
+        <div class="pay-line-qty">${ci.qty}</div>
+      </div>
+      <div class="pay-line-info">
+        <div class="pay-line-name">${it.title}</div>
+        <div class="pay-line-sub">${money(it.price)} each</div>
+      </div>
+      <div class="pay-line-price">${money(it.price * ci.qty)}</div>
+    </div>`;
+  }).join("");
+
+  const tax  = sub * 0.08;
+  grandTotal = sub + tax;
+
+  document.getElementById("sumSub").textContent     = money(sub);
+  document.getElementById("sumTax").textContent      = money(tax);
+  document.getElementById("sumGrand").textContent    = money(grandTotal);
+  document.getElementById("summaryTotal").textContent = money(grandTotal);
+  totEl.style.display = "flex";
+
+  const lbl = money(grandTotal);
+  document.getElementById("payLabel").textContent      = `Pay ${lbl}`;
+  document.getElementById("payLabelSaved").textContent = `Pay ${lbl}`;
+
+  validateForm();
+}
+
+// ── Method toggle ──────────────────────────────────────
+window.showMethod = function(m) {
+  currentMethod = m;
+  document.getElementById("panelNew").style.display   = m === "new" ? "block" : "none";
+  document.getElementById("panelSaved").style.display = m === "saved" ? "block" : "none";
+  document.getElementById("btnNew").classList.toggle("active",   m === "new");
+  document.getElementById("btnSaved").classList.toggle("active", m === "saved");
+  clearErrors();
+};
+
+// ── Card input formatting ──────────────────────────────
+const numInput  = document.getElementById("cn-num");
+const expInput  = document.getElementById("cn-exp");
+const cvcInput  = document.getElementById("cn-cvc");
+const cardBlock = document.getElementById("cardBlock");
+
+[numInput, expInput, cvcInput, document.getElementById("cn-name"), document.getElementById("p-email")]
+  .forEach(el => el.addEventListener("input", validateForm));
+[numInput, expInput, cvcInput].forEach(el => {
+  el.addEventListener("focus",  () => cardBlock.classList.add("focused"));
+  el.addEventListener("blur",   () => cardBlock.classList.remove("focused"));
+});
+
+// Format card number
+numInput.addEventListener("input", function() {
+  const net = BHPay.detectNetwork(this.value);
+  let v = this.value.replace(/\D/g, "");
+  if (net === "amex") {
+    v = v.slice(0,15);
+    v = v.replace(/^(\d{0,4})(\d{0,6})(\d{0,5})$/, (_,a,b,c) => [a,b,c].filter(Boolean).join(" "));
+  } else {
+    v = v.slice(0,16).replace(/(.{4})/g,"$1 ").trim();
+  }
+  this.value = v;
+  updateNetworkIcons(net);
+  validateForm();
+});
+
+// Format expiry
+expInput.addEventListener("input", function() {
+  let v = this.value.replace(/\D/g,"").slice(0,4);
+  if (v.length > 2) v = v.slice(0,2) + " / " + v.slice(2);
+  this.value = v;
+});
+
+// CVC show/hide toggle
+document.getElementById("cvcToggle").addEventListener("click", function() {
+  const isPass = cvcInput.type === "password";
+  cvcInput.type  = isPass ? "text" : "password";
+  this.textContent = isPass ? "🙈" : "👁";
+});
+
+function updateNetworkIcons(detected) {
+  ["visa","mc","amex","disc"].forEach(n => {
+    const el = document.getElementById(`ni-${n}`);
+    if (!el) return;
+    const match = (n === "mc" ? detected === "mastercard" : detected === n);
+    el.classList.toggle("active", !detected || match);
+  });
+}
+
+// ── Form validation ────────────────────────────────────
+function validateForm() {
+  if (currentMethod !== "new") return;
+  const num   = numInput.value.replace(/\D/g,"");
+  const exp   = expInput.value.replace(/\D/g,"");
+  const cvc   = cvcInput.value.replace(/\D/g,"");
+  const name  = document.getElementById("cn-name").value.trim();
+  const email = document.getElementById("p-email").value.trim();
+  const ok = num.length >= 13 && exp.length === 4 && cvc.length >= 3
+             && name.length >= 2 && email.includes("@") && grandTotal > 0;
+  document.getElementById("btnPay").disabled = !ok;
+}
+
+// ── Render saved cards ─────────────────────────────────
+function renderSaved() {
+  const cards   = BHPay.getMethods();
+  const listEl  = document.getElementById("savedList");
+  const badge   = document.getElementById("savedBadge");
+  badge.textContent = cards.length ? `(${cards.length})` : "";
+
+  if (!cards.length) {
+    listEl.innerHTML = `<div style="font-size:13px;color:#8898aa;padding:8px 0 4px;">
+      No saved cards. Add one on the "New card" tab.</div>`;
+    selectedPmId = null;
+    document.getElementById("btnPaySaved").disabled = true;
+    return;
+  }
+
+  if (!selectedPmId || !cards.find(c => c.id === selectedPmId)) {
+    selectedPmId = cards[0].id;
+  }
+
+  listEl.innerHTML = cards.map(c => {
+    const last4 = c.last4;
+    const net   = c.network || "unknown";
+    const netLabel = { visa:"VISA", mastercard:"MC", amex:"AMEX", discover:"DISC" }[net] || "CARD";
+    const sel   = c.id === selectedPmId;
+    return `<div class="pay-saved-card${sel?" selected":""}" data-id="${c.id}" tabindex="0" role="radio" aria-checked="${sel}">
+      <div class="pay-saved-radio"><div class="pay-saved-dot"></div></div>
+      <div class="pay-saved-net ${net}">${netLabel}</div>
+      <div class="pay-saved-info">
+        <div class="pay-saved-num">•••• •••• •••• ${last4}</div>
+        <div class="pay-saved-meta">${c.name}</div>
+      </div>
+      <div class="pay-saved-exp">${c.expiry}</div>
+      <button class="pay-saved-del" data-id="${c.id}" type="button" title="Remove card">✕</button>
+    </div>`;
+  }).join("");
+
+  listEl.querySelectorAll(".pay-saved-card").forEach(row => {
+    row.addEventListener("click", e => {
+      if (e.target.closest(".pay-saved-del")) return;
+      selectedPmId = row.dataset.id;
+      renderSaved();
+    });
+    row.addEventListener("keydown", e => { if(e.key==="Enter"||e.key===" "){e.preventDefault();row.click();} });
+  });
+  listEl.querySelectorAll(".pay-saved-del").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      BHPay.removeMethod(btn.dataset.id);
+      if (selectedPmId === btn.dataset.id) selectedPmId = null;
+      renderSaved();
+    });
+  });
+
+  document.getElementById("btnPaySaved").disabled = grandTotal <= 0;
+  document.getElementById("payLabelSaved").textContent = `Pay ${money(grandTotal)}`;
+}
+
+// ── Error helpers ──────────────────────────────────────
+function showError(panel, msg, code, retryable) {
+  const errId   = panel === "new" ? "errNew"   : "errSaved";
+  const retryId = panel === "new" ? "retryNew" : "retrySaved";
+  const errEl   = document.getElementById(errId);
+  errEl.innerHTML = `${msg}${code ? `<div class="err-code">Error code: ${code}</div>` : ""}`;
+  errEl.classList.add("show");
+  if (retryable) {
+    document.getElementById(retryId).classList.add("show");
+  }
+}
+function clearErrors() {
+  ["errNew","errSaved","retryNew","retrySaved"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove("show"); }
+  });
+}
+
+// ── Set button loading state ───────────────────────────
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  btn.classList.toggle("loading", loading);
+  btn.disabled = loading;
+}
+
+// ── Show success screen ────────────────────────────────
+function showSuccess(result) {
+  document.getElementById("payBody").style.display = "none";
+  const r = result.receipt;
+  document.getElementById("receiptCard").innerHTML = `
+    <div class="pay-receipt-row">
+      <span class="pay-receipt-label">Order ID</span>
+      <span class="pay-receipt-val">${r.orderId}</span>
+    </div>
+    <div class="pay-receipt-row">
+      <span class="pay-receipt-label">Payment</span>
+      <span class="pay-receipt-val">${r.intentId}</span>
+    </div>
+    <div class="pay-receipt-row">
+      <span class="pay-receipt-label">Amount</span>
+      <span class="pay-receipt-val green">${money(r.amount / 100)}</span>
+    </div>
+    <div class="pay-receipt-row">
+      <span class="pay-receipt-label">Card</span>
+      <span class="pay-receipt-val">${r.network.toUpperCase()} •••• ${r.last4}</span>
+    </div>
+    <div class="pay-receipt-row">
+      <span class="pay-receipt-label">Status</span>
+      <span class="pay-receipt-val green">✓ Paid</span>
+    </div>
+  `;
+  document.getElementById("screenSuccess").classList.add("show");
+  localStorage.removeItem(CART_KEY);
+}
+
+// ── Show hard-fail screen ──────────────────────────────
+function showHardFail(error) {
+  document.getElementById("payBody").style.display = "none";
+  document.getElementById("failedMsg").textContent  = error.message;
+  document.getElementById("failedCode").textContent = `Code: ${error.code}`;
+  document.getElementById("screenFailed").classList.add("show");
+}
+
+// ── Restart after failure ──────────────────────────────
+window.restartCheckout = function() {
+  document.getElementById("screenFailed").classList.remove("show");
+  document.getElementById("payBody").style.display = "grid";
+  clearErrors();
+  attemptCount = 0;
+  showMethod("new");
+};
+
+// ── Retry handlers ─────────────────────────────────────
+window.retryNew = function() {
+  clearErrors();
+  document.getElementById("cn-num").value  = "";
+  document.getElementById("cn-exp").value  = "";
+  document.getElementById("cn-cvc").value  = "";
+  document.getElementById("cn-name").value = "";
+  updateNetworkIcons("");
+  validateForm();
+};
+window.retrySaved = function() {
+  clearErrors();
+};
+
+// ── Pay with new card ──────────────────────────────────
+document.getElementById("btnPay").addEventListener("click", async () => {
+  clearErrors();
+  const cardData = {
+    number:  document.getElementById("cn-num").value,
+    expiry:  document.getElementById("cn-exp").value,
+    cvc:     document.getElementById("cn-cvc").value,
+    name:    document.getElementById("cn-name").value,
+  };
+  const options = {
+    amount:    Math.round(grandTotal * 100),
+    currency:  "usd",
+    items:     getCart(),
+    email:     document.getElementById("p-email").value.trim(),
+    saveCard:  document.getElementById("cn-save").checked,
+  };
+
+  setLoading("btnPay", true);
+  cardBlock.classList.remove("errored");
+  attemptCount++;
+
+  const result = await BHPay.checkout(cardData, options);
+
+  setLoading("btnPay", false);
+
+  if (result.ok) {
+    renderSaved(); // update saved count in case a card was saved
+    showSuccess(result);
+  } else {
+    const err = result.error;
+    if (!err.retryable) {
+      if (attemptCount >= 2) {
+        // After 2 hard failures, show full fail screen
+        showHardFail(err);
+      } else {
+        cardBlock.classList.add("errored");
+        showError("new", err.message, err.code, false);
+      }
+    } else {
+      // Retryable — show inline with retry button
+      showError("new", err.message + " This can be a temporary issue.", err.code, true);
+    }
+  }
+});
+
+// ── Pay with saved card ────────────────────────────────
+document.getElementById("btnPaySaved").addEventListener("click", async () => {
+  clearErrors();
+  if (!selectedPmId) {
+    showError("saved", "Please select a payment method.", null, false);
+    return;
+  }
+
+  const options = {
+    amount:   Math.round(grandTotal * 100),
+    currency: "usd",
+    items:    getCart(),
+    email:    document.getElementById("p-email").value.trim(),
+  };
+
+  setLoading("btnPaySaved", true);
+  attemptCount++;
+
+  const result = await BHPay.checkout({ pmId: selectedPmId }, options);
+
+  setLoading("btnPaySaved", false);
+
+  if (result.ok) {
+    showSuccess(result);
+  } else {
+    const err = result.error;
+    if (!err.retryable && attemptCount >= 2) {
+      showHardFail(err);
+    } else {
+      showError("saved", err.message, err.code, err.retryable);
+    }
+  }
+});
+
+// ── Pre-fill email from Google account ─────────────────
+(function() {
+  const acct = BH.Auth.getAccount();
+  if (acct && acct.email) {
+    document.getElementById("p-email").value = acct.email;
+  }
+})();
+
+// ── Init ───────────────────────────────────────────────
+buildSummary();
+renderSaved();
+
+// Auto-switch to saved tab if cards exist
+if (BHPay.getMethods().length) showMethod("saved");
+</script>
+</body>
+</html>
